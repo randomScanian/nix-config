@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ inputs, config, pkgs, lib, ... }:
 
 {
   imports =
@@ -10,6 +10,7 @@
     "randomscanian"
     "@wheel"
   ];
+  boot.loader.efi.efiSysMountPoint = lib.mkForce "/boot";
   networking.networkmanager.enable = true;
   time.timeZone = "Europe/Stockholm";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -25,8 +26,8 @@
     LC_TIME = "sv_SE.UTF-8";
   };
   services.xserver.enable = true;
-  services.xserver.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
+  services.xserver.displayManager.gdm.enable = true;
+  services.xserver.desktopManager.gnome.enable = true;
   services.xserver = {
     layout = "us";
     xkbVariant = "colemak";
