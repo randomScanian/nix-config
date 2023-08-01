@@ -40,8 +40,8 @@
         nixpkgs.lib.nixosSystem {
           pkgs = inputs.nixpkgs.legacyPackages.${system};
           modules = [
-            ${nixosModulesDir}/sharedConfig.nix
-            ${nixosModulesDir}/default.nix
+            "${nixosModulesDir}/sharedConfig.nix"
+            "${nixosModulesDir}/default.nix"
             ./hosts/${hostname}
             {
               networking.hostName = hostname;
@@ -62,8 +62,8 @@
         }: home-manager.lib.homeManagerConfiguration {
           pkgs = inputs.nixpkgs.legacyPackages.${system};
           modules = [
-            ${hmModulesDir}/sharedConfig.nix
-            ${hmModulesDir}/default.nix
+            "${hmModulesDir}/sharedConfig.nix"
+            "${hmModulesDir}/default.nix"
             ./hm/${userName}/${hostName}
               {
                 nixpkgs.config.allowUnfree = allowUnfree;
