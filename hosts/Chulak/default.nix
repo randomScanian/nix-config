@@ -1,16 +1,12 @@
 { inputs, config, pkgs, lib, ... }:
 
 {
-  imports =
-    [
-      ./hardware-configuration.nix
-    ];
+  imports = [ ./hardware.nix ];
   nix.settings.trusted-users = [
     "root"
-    "randomscanian"
     "@wheel"
   ];
-  boot.loader.efi.efiSysMountPoint = lib.mkForce "/boot";
+  boot.loader.efi.efiSysMountPoint = "/boot";
   networking.networkmanager.enable = true;
   time.timeZone = "Europe/Stockholm";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -25,12 +21,24 @@
     LC_TELEPHONE = "sv_SE.UTF-8";
     LC_TIME = "sv_SE.UTF-8";
   };
+  services.keyd = {
+    enable = true;
+    keyboards.default = {
+      ids = [ "*" ];
+      settings = {
+        main = {
+          capslock = "overload(control, esc)";
+        };
+      };
+    };
+  };
   services.xserver.enable = true;
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
   services.xserver = {
     layout = "us";
     xkbVariant = "colemak";
+    xkbOptions = "caps:capslock,eurosign:e";
   };
   services.printing.enable = true;
   hardware.bluetooth.enable = true;

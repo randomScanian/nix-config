@@ -3,6 +3,7 @@
 {
   imports =
     [ (modulesPath + "/installer/scan/not-detected.nix")
+      inputs.hardware.nixosModules.microsoft-surface-go
     ];
   boot.initrd.availableKernelModules = [ "xhci_pci" "nvme" "usbhid" "usb_storage" "sd_mod" "rtsx_pci_sdmmc" ];
   boot.initrd.kernelModules = [ ];
@@ -17,10 +18,7 @@
     { device = "/dev/disk/by-uuid/B24B-52D5";
       fsType = "vfat";
     };
-
-  swapDevices =
-    [ { device = "/dev/disk/by-uuid/42a29f61-0b1a-4a19-ab9c-3449ad926c61"; }
-    ];
+  
   networking.useDHCP = lib.mkDefault true;
   powerManagement.cpuFreqGovernor = lib.mkDefault "powersave";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;

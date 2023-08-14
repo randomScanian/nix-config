@@ -2,10 +2,11 @@
   description = "Your new nix config";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-23.05";
-    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
-    home-manager.url = "github:nix-community/home-manager/release-23.05";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    home-manager = {
+      url = "github:nix-community/home-manager";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     hardware.url = "github:nixos/nixos-hardware";
 
     theming.url = "github:randomScanian/theming";
@@ -32,50 +33,35 @@
       ];
       
       mkHost =
-        { hostname
+        { hostname ? "CHANGEME"
         , system ? "x86_64-linux"
         , stateVersion ? "23.05"
-        , allowUnfree ? false
+        , homeStateVersion ? "23.05"
+        , allowUnfree ? true
+        , isNvidia ? false
         }:
         nixpkgs.lib.nixosSystem {
-          pkgs = inputs.nixpkgs.legacyPackages.${system};
           modules = [
-            "${nixosModulesDir}/sharedConfig.nix"
-            "${nixosModulesDir}/default.nix"
-            ./hosts/${hostname}
-            {
-              networking.hostName = hostname;
-              nixpkgs.hostPlatform.system = system;
-              nixpkgs.config.allowUnfree = allowUnfree;
-              system.stateVersion = stateVersion;
-            }
+            inputs.home-manager.nixosModules.home-manager
+            "${nixosModulesDir}"
+            ./hosts/${hostname}/default.nix
           ];
           
-          specialArgs = { inherit inputs outputs hmModulesDir; };
+          specialArgs = { inherit inputs outputs hmModulesDir allowUnfree isNvidia system hostname stateVersion homeStateVersion; };
         };
       mkHome =
-        { hostName
-        , userName
-        , stateVersion
-        , system
-        , allowUnfree
+        { hostName ? "CHANGEME"
+        , userName ? "CHANGEME"
+        , stateVersion ? "23.05"
+        , system ? "x86_64-linux"
+        , allowUnfree ? true
         }: home-manager.lib.homeManagerConfiguration {
-          pkgs = inputs.nixpkgs.legacyPackages.${system};
-          modules = [
-            "${hmModulesDir}/sharedConfig.nix"
-            "${hmModulesDir}/default.nix"
-            ./hm/${userName}/${hostName}
-              {
-                nixpkgs.config.allowUnfree = allowUnfree;
-                nixpkgs.config.allowUnfreePredicate = (_: allowUnfree);
-                home = {
-                  username = "${userName}";
-                  homeDirectory = "/home/${userName}";
-                  stateVersion = stateVersion;
-                };
-              }
+          modules = with inputs; [
+            home-manager.nixosModules.home-manager
+            "${hmModulesDir}"
+            ./hm/${hostName}/${userName}
           ];
-          extraSpecialArgs = {inherit inputs outputs; };
+          extraSpecialArgs = {inherit inputs outputs userName allowUnfree; };
         };
     in
       rec {
@@ -84,10 +70,10 @@
           in import ./pkgs { inherit pkgs; }
         );
         
-        devShells = forAllSystems (system:
-          let pkgs = nixpkgs.legacyPackages.${system};
-          in import ./shell.nix { inherit pkgs; }
-        );
+        #devShells = forAllSystems (system:
+        #  let pkgs = nixpkgs.legacyPackages.${system};
+        #  in import ./shell.nix { inherit pkgs; }
+        #);
         
         overlays = import ./overlays { inherit inputs; };
         
@@ -103,6 +89,7 @@
             system = "x86_64-linux";
             stateVersion = "23.05";
             allowUnfree = true;
+            isNvidia = false;
           };
         };
 
@@ -110,11 +97,11 @@
           #This system does not exist yet...
           #It currently serves as a demo for i would setup standalone home-manager in the future.
           Demo = mkHome {
-            hostName = "Demo";
-            userName = "randomscanian";
-            system = "x86_64-linux";
-            stateVersion = "23.05";
-            allowUnfree = true;
+            hostName = "Demo"; # the hostname of the system, needed for module import
+            userName = "randomscanian"; #the name of the user
+            system = "x86_64-linux"; # the value the system variable should be set to. usefull if running on mac or ARM based machine, probably wont need but nice to have.
+            stateVersion = "23.05"; # check nixos wiki for stateversion variable.
+            allowUnfree = true; # Whether or not to allow installation of unFree/proprietary software
           };
         };
       };

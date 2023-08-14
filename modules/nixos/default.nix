@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, inputs, ... }:
 
 with lib;
 let
@@ -17,10 +17,10 @@ let
     (file: ./. + "/${file}")
     (filter
       (file: hasSuffix ".nix" file && file != "default.nix" &&
-        ! lib.hasPrefix "x/taffybar/" file &&
-        ! lib.hasSuffix "-hm.nix" file)
+        ! lib.hasPrefix "#x" file &&
+        ! lib.hasSuffix "#" file &&
+        ! lib.hasSuffix "~" file)
       (files dir));
-
 in
 {
 

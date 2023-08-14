@@ -1,5 +1,11 @@
 { inputs, outputs, lib, config, pkgs, ... }: {
   imports = [
-    ./hardware-configuration.nix
+    ./hardware.nix
   ];
+  networking.hostName = "Abydos";
+  RandomScanian.user.users = {
+    "randomscanian" = {
+      name = "randomscanian";
+    };
+  };
 }

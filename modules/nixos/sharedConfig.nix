@@ -1,12 +1,11 @@
-{ inputs, outputs, lib, config, pkgs, ... }: {
+{ inputs, outputs, lib, config, pkgs, hostname, system, stateVersion, ... }: {
   boot.loader = {
     efi = {
       canTouchEfiVariables = true;
-      efiSysMountPoint = "/boot/efi"; # ← use the same mount point here.
+      efiSysMountPoint = lib.mkDefault "/boot/efi"; # ← use the same mount point here.
     };
     grub = {
       efiSupport = true;
-      #efiInstallAsRemovable = true; # in case canTouchEfiVariables doesn't work for your system
       device = "nodev";
     };
   };
@@ -17,14 +16,17 @@
       outputs.overlays.unstable-packages
     ];
   };
-
+  networking.resolvconf.dnsExtensionMechanism = true;
   nix = {
     registry = lib.mapAttrs (_: value: { flake = value; }) inputs;
     nixPath = lib.mapAttrsToList (key: value: "${key}=${value.to.path}") config.nix.registry;
-
     settings = {
       experimental-features = "nix-command flakes";
       auto-optimise-store = true;
     };
   };
+  
+  networking.hostName = hostname;
+  nixpkgs.hostPlatform.system = system;
+  system.stateVersion = stateVersion;
 }

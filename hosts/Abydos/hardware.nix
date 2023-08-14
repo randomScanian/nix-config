@@ -4,7 +4,6 @@
     [ (modulesPath + "/installer/scan/not-detected.nix")
       inputs.hardware.nixosModules.common-cpu-intel-cpu-only
       inputs.hardware.nixosModules.common-pc-ssd
-      inputs.hardware.nixosModules.common-gpu-nvidia
       inputs.hardware.nixosModules.common-hidpi
     ];
 
